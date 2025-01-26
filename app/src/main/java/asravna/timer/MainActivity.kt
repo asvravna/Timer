@@ -5,9 +5,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
@@ -66,31 +67,24 @@ fun Timer(
     initialValue: Float = 1f,
     strokeWidth: Dp = 5.dp
 ) {
-    var size by remember {
-        mutableStateOf(IntSize.Zero)
-    }
-    var value by remember {
-        mutableStateOf(initialValue)
-    }
-    var currentTime by remember {
-        mutableStateOf(totalTime)
-    }
-    var isTimerRunning by remember {
-        mutableStateOf(false)
-    }
+    var size by remember { mutableStateOf(IntSize.Zero) }
+    var value by remember { mutableStateOf(initialValue) }
+    var currentTime by remember { mutableStateOf(totalTime) }
+    var isTimerRunning by remember { mutableStateOf(false) }
+
     LaunchedEffect(key1 = currentTime, key2 = isTimerRunning) {
-        if(currentTime > 0 && isTimerRunning) {
+        if (currentTime > 0 && isTimerRunning) {
             delay(100L)
             currentTime -= 100L
             value = currentTime / totalTime.toFloat()
         }
     }
+
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .onSizeChanged {
-                size = it
-            }
+            .onSizeChanged { size = it }
+
     ) {
         Canvas(modifier = modifier) {
             drawArc(
@@ -123,35 +117,59 @@ fun Timer(
             )
         }
         Text(
-            text = (currentTime / 1000L).toString(),
-            fontSize = 44.sp,
+            text = (currentTime / 1000L).toString() + " sec",
+            fontSize = 35.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White
+            color = Color.White,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(30.dp)
         )
-        Button(
-            onClick = {
-                if(currentTime <= 0L) {
-                    currentTime = totalTime
-                    isTimerRunning = true
-                } else {
-                    isTimerRunning = !isTimerRunning
-                }
-            },
-            modifier = Modifier.align(Alignment.BottomCenter),
-            colors = ButtonDefaults.buttonColors(containerColor =
-            if (!isTimerRunning || currentTime <= 0L) {
-                Color.Green
-            } else {
-                Color.Red
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+
+
+
+        ) {
+
+            Button(
+                onClick = {
+                    if (currentTime <= 0L) {
+                        currentTime = totalTime
+                        isTimerRunning = true
+                    } else {
+                        isTimerRunning = !isTimerRunning
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (!isTimerRunning || currentTime <= 0L) {
+                        Color.Green
+                    } else {
+                        Color.Red
+                    }
+                ),
+            ) {
+
+                Text(
+                    text = if (isTimerRunning && currentTime >= 0L) "Stop"
+                    else if (!isTimerRunning && currentTime >= 0L) "Start"
+                    else "Restart"
+                )
             }
 
-            )
-        ) {
-            Text(
-                text = if (isTimerRunning && currentTime >= 0L) "Stop"
-                else if (!isTimerRunning && currentTime >= 0L) "Start"
-                else "Restart"
-            )
+            Button(
+                onClick = {
+                    currentTime = totalTime
+                    isTimerRunning = false
+                    value = initialValue
+                },
+                modifier = Modifier.padding(top = 8.dp) // Add some space between buttons
+            ) {
+                Text("Reset")
+            }
         }
     }
 }
